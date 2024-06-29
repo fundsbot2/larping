@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Link</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            color: white;
+            overflow: hidden;
+        }
+
+        #clickPrompt {
+            position: absolute;
+            z-index: 1;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #mediaLayout {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .media-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 25px;
+            padding: 20px;
+        }
+
+        .media-content img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+        }
+
+        .media-content .text {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-content .badges {
+            margin-left: 10px;
+            display: flex;
+            gap: 5px;
+            position: relative; /* Ensure badges container is relative for absolute positioning */
+        }
+
+        .badge {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            position: relative; /* Ensure badge is relative for absolute positioning of tooltip */
+        }
+
+        .badge .tooltip {
+            position: absolute;
+            top: -30px; /* Adjust as needed to position above the badge */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.4);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0;
+            backdrop-filter: blur(8px); /* Adjust blur as needed */
+            transition: all 0.3s ease-in-out;
+            z-index: 20; /* Ensure tooltip is above other content */
+        }
+
+        .badge:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Counter Styles */
+        #viewCounter {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.4); /* Transparent background */
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="clickPrompt">[Click Anywhere]</div>
+    <div id="mediaLayout">
+        <video autoplay muted loop id="videoBackground">
+            <source src="https://cdn.xoa.me/uploads/b5fce5d9-7e79-4a10-9224-fbe438c3b9c6.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <audio autoplay loop id="audioBackground">
+            <source src="https://files.catbox.moe/366kg8.mp4" type="audio/mpeg">
+            Your browser does not support the audio tag.
+        </audio>
+        <div class="media-content">
+            <img src="https://cdn.discordapp.com/avatars/880920474853449768/cde723723a95da5fb6927ffe7ec2083f.png?size=1024" alt="Profile Picture">
+            <div class="text">
+                larpingcoms
+                <div class="badges">
+                    <!-- Badge 1 with tooltip -->
+                    <div class="badge" data-info="Badge Info 1">
+                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="h-5 w-5 iconify iconify--mage" width="1em" height="1em" viewBox="0 0 24 24" style="color: rgb(255, 255, 255);"><path fill="currentColor" d="m9.367 19.08l-7.025-9.04h3.836zm5.987-9.04l-3.36 10.946L8.12 10.039zm6.28 0l-7.209 9.272l2.859-9.273zM22 8.206h-4.704l-1.43-5.192h2.652a.39.39 0 0 1 .257.183zm-6.597 0h-7.27l1.833-5.18h3.995zM8.011 3.039l-1.82 5.167H2L5.128 3.32l.097-.11a.501.501 0 0 1 .16-.123a.391.391 0 0 1 .17 0z"></path></svg>
+                        <div class="tooltip">Premium</div>
+                    </div>
+                    <!-- Badge 2 with tooltip -->
+                    <div class="badge" data-info="Badge Info 2">
+                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="h-5 w-5 iconify iconify--badge" width="1em" height="1em" viewBox="0 0 24 24" style="color: rgb(255, 255, 255);"><path fill="currentColor" d="M16.374 9.863a.814.814 0 0 0-1.151-1.151l-4.85 4.85l-1.595-1.595a.814.814 0 0 0-1.151 1.151l2.17 2.17a.814.814 0 0 0 1.15 0z"></path></svg>
+                        <div class="tooltip">Verified</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewCounter">Views: <span id="viewCount">0</span></div>
+
+    <script>
+        // Increment view count on page load
+        let viewCount = localStorage.getItem('viewCount') || 0;
+        viewCount++;
+        localStorage.setItem('viewCount', viewCount);
+        document.getElementById('viewCount').textContent = viewCount;
+        
+        document.body.addEventListener('click', function() {
+            document.getElementById('clickPrompt').style.display = 'none';
+            document.getElementById('mediaLayout').style.display = 'flex';
+            document.getElementById('mediaLayout').style.alignItems = 'center';
+            document.getElementById('mediaLayout').style.justifyContent = 'center';
+            document.getElementById('videoBackground').play();
+            document.getElementById('audioBackground').play();
+        });
+
+        // Track Discord activity
+        function trackDiscordActivity(discordId) {
+            // Here you can implement logic to track activity for the given Discord ID
+            console.log(`Tracking activity for Discord ID: ${discordId}`);
+            // Replace with actual tracking code
+        }
+
+        // Replace '1254215562662510653' with the Discord ID you want to track
+        const discordId = '1254215562662510653';
+        trackDiscordActivity(discordId);
+
+        // Prevent Ctrl+Shift+I
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'I') {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
